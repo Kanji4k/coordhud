@@ -1,4 +1,9 @@
 {
   "key.coordshud.toggle": "Toggle Coords HUD",
-  "key.coordshud.cycle": "Cycle Coords HUD corner"
+  "key.coordshud.edit": "Coords HUD: edit position",
+  "key.coordshud.reset": "Coords HUD: reset position",
+  "key.coordshud.up": "Coords HUD: move up",
+  "key.coordshud.down": "Coords HUD: move down",
+  "key.coordshud.left": "Coords HUD: move left",
+  "key.coordshud.right": "Coords HUD: move right"
 }
