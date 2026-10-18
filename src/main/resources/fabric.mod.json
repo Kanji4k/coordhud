@@ -6,7 +6,7 @@
   "description": "Client-side coordinates HUD. Works on any multiplayer server, no server mod needed.",
   "authors": ["you"],
   "environment": "client",
-  "entrypoints": { "client": ["me.coordshud.client.CoordsHudClient"] },
+  "entrypoints": { "client": ["me.coordshud.client.CoordsHudClient", "me.coordshud.client.HeartsRow"] },
   "depends": {
     "fabricloader": ">=0.16.9",
     "minecraft": ">=1.21.11",
