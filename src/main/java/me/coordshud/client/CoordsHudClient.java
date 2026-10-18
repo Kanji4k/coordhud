@@ -7,27 +7,25 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CoordsHudClient implements ClientModInitializer {
     private static boolean enabled = true;
-    private static int corner = 0;
+
+    private static final String[] NAMES  = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+    private static final String[] ARROWS = {"\u2191", "\u2197", "\u2192", "\u2198", "\u2193", "\u2199", "\u2190", "\u2196"};
+
+    private static final int GOLD = 0xFFFFAA00;
+    private static final int WHITE = 0xFFFFFFFF;
 
     @Override
     public void onInitializeClient() {
         KeyMapping toggle = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.coordshud.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, KeyMapping.Category.MISC));
-        KeyMapping cycle = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-                "key.coordshud.cycle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, KeyMapping.Category.MISC));
 
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             while (toggle.consumeClick()) enabled = !enabled;
-            while (cycle.consumeClick()) corner = (corner + 1) % 4;
         });
 
         HudElementRegistry.addLast(
@@ -36,33 +34,31 @@ public class CoordsHudClient implements ClientModInitializer {
                     Minecraft mc = Minecraft.getInstance();
                     if (!enabled || mc.player == null || mc.level == null || mc.options.hideGui) return;
 
-                    List<String> lines = new ArrayList<>();
-                    lines.add(String.format("XYZ: %.1f / %.1f / %.1f",
-                            mc.player.getX(), mc.player.getY(), mc.player.getZ()));
-                    String dir = mc.player.getDirection().getName();
-                    lines.add("Facing: " + dir.substring(0, 1).toUpperCase() + dir.substring(1));
+                    int x = (int) Math.floor(mc.player.getX());
+                    int y = (int) Math.floor(mc.player.getY());
+                    int z = (int) Math.floor(mc.player.getZ());
 
-                    String biome = mc.level.getBiome(mc.player.blockPosition()).getRegisteredName();
-                    int c = biome.indexOf(':');
-                    if (c > 0) {
-                        lines.add("Biome: " + Component.translatable(
-                                "biome." + biome.substring(0, c) + "." + biome.substring(c + 1)).getString());
-                    }
+                    float yaw = ((mc.player.getYRot() % 360f) + 360f) % 360f;
+                    int idx = Math.round(((yaw + 180f) % 360f) / 45f) % 8;
 
-                    String dim = mc.level.dimension().toString();
-                    dim = dim.substring(dim.lastIndexOf(':') + 1).replace("]", "");
-                    lines.add("Dim: " + dim);
+                    String label = "XYZ: ";
+                    String coords = x + " " + y + " " + z;
+                    String arrow = ARROWS[idx];
+                    String dir = " " + NAMES[idx];
+                    String gap = "   ";
 
-                    int lh = mc.font.lineHeight + 2, pad = 4;
-                    int w = 0;
-                    for (String s : lines) w = Math.max(w, mc.font.width(s));
-                    int sw = graphics.guiWidth(), sh = graphics.guiHeight();
-                    int x = (corner % 2 == 0) ? pad : sw - w - pad;
-                    int y = (corner < 2) ? pad : sh - lines.size() * lh - pad;
-                    for (String s : lines) {
-                        graphics.drawString(mc.font, s, x, y, 0xFFFFFFFF, true);
-                        y += lh;
-                    }
+                    int total = mc.font.width(label) + mc.font.width(coords) + mc.font.width(gap)
+                            + mc.font.width(arrow) + mc.font.width(dir);
+                    int px = (graphics.guiWidth() - total) / 2;
+                    int py = graphics.guiHeight() - 64;
+
+                    graphics.drawString(mc.font, label, px, py, GOLD, true);
+                    px += mc.font.width(label);
+                    graphics.drawString(mc.font, coords, px, py, WHITE, true);
+                    px += mc.font.width(coords) + mc.font.width(gap);
+                    graphics.drawString(mc.font, arrow, px, py, GOLD, true);
+                    px += mc.font.width(arrow);
+                    graphics.drawString(mc.font, dir, px, py, WHITE, true);
                 });
     }
 }
