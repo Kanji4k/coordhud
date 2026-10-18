@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "coordshud",
+  "version": "${version}",
+  "name": "Coords HUD (Client)",
+  "description": "Client-side coordinates HUD. Works on any multiplayer server, no server mod needed.",
+  "authors": ["you"],
+  "environment": "client",
+  "entrypoints": { "client": ["me.coordshud.client.CoordsHudClient"] },
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "minecraft": ">=1.21.9",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
