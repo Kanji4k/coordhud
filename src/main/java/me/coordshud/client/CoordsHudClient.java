@@ -8,16 +8,15 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/** Purely client-side: reads the local player's position, so it works on any server. */
 public class CoordsHudClient implements ClientModInitializer {
     private static boolean enabled = true;
-    private static int corner = 0; // 0 TL, 1 TR, 2 BL, 3 BR
+    private static int corner = 0;
 
     @Override
     public void onInitializeClient() {
@@ -32,23 +31,27 @@ public class CoordsHudClient implements ClientModInitializer {
         });
 
         HudElementRegistry.addLast(
-                ResourceLocation.fromNamespaceAndPath("coordshud", "hud"),
+                Identifier.fromNamespaceAndPath("coordshud", "hud"),
                 (graphics, tickCounter) -> {
                     Minecraft mc = Minecraft.getInstance();
-                    if (!enabled || mc.player == null || mc.level == null
-                            || mc.options.hideGui || mc.getDebugOverlay().showDebugScreen()) return;
+                    if (!enabled || mc.player == null || mc.level == null || mc.options.hideGui) return;
 
                     List<String> lines = new ArrayList<>();
                     lines.add(String.format("XYZ: %.1f / %.1f / %.1f",
                             mc.player.getX(), mc.player.getY(), mc.player.getZ()));
                     String dir = mc.player.getDirection().getName();
                     lines.add("Facing: " + dir.substring(0, 1).toUpperCase() + dir.substring(1));
-                    mc.level.getBiome(mc.player.blockPosition()).unwrapKey().ifPresent(k -> {
-                        ResourceLocation id = k.location();
+
+                    String biome = mc.level.getBiome(mc.player.blockPosition()).getRegisteredName();
+                    int c = biome.indexOf(':');
+                    if (c > 0) {
                         lines.add("Biome: " + Component.translatable(
-                                "biome." + id.getNamespace() + "." + id.getPath()).getString());
-                    });
-                    lines.add("Dim: " + mc.level.dimension().location().getPath());
+                                "biome." + biome.substring(0, c) + "." + biome.substring(c + 1)).getString());
+                    }
+
+                    String dim = mc.level.dimension().toString();
+                    dim = dim.substring(dim.lastIndexOf(':') + 1).replace("]", "");
+                    lines.add("Dim: " + dim);
 
                     int lh = mc.font.lineHeight + 2, pad = 4;
                     int w = 0;
