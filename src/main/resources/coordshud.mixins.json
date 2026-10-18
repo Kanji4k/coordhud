@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "me.coordshud.client",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "InGameHudMixin"
+  ],
+  "client": []
+}
