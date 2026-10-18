@@ -4,11 +4,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(net.minecraft.class_329.class)
+@Mixin(targets = "net.minecraft.client.gui.hud.InGameHud")
 public abstract class InGameHudMixin {
 
     @ModifyVariable(
-        method = "method_1752", 
+        method = "renderStatusBars", 
         at = @At(value = "STORE"), 
         ordinal = 1
     )
