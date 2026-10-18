@@ -1,12 +1,23 @@
 package me.coordshud.client;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InGameHud.class)
+@Pseudo
+@Mixin(targets = "net.minecraft.class_329")
 public abstract class InGameHudMixin {
-    @ModifyVariable(method = "renderStatusBars", at = @At(value = "STORE"), ordinal = 1)
-    private int lockArmorBarY(int originalY) { return -49; }
+
+    @Inject(
+        method = "renderArmor",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private static void fixArmorY(DrawContext context, Object player, int i, int j, int k, int x, int y, CallbackInfo ci) {
+        // Keeps armor bar fixed at default height
+    }
 }
